@@ -13,7 +13,7 @@ Dual licensed under the MIT (filamentgroup.com/examples/mit-license.txt) and GPL
 
 var allUIMenus = [];
 
-$.fn.menu = function(options){
+$.fn.fgmenu = function(options){
 	var caller = this;
 	var options = options;
 	var m = new Menu(caller, options);	
@@ -67,7 +67,10 @@ function Menu(caller, options){
 		flyOutOnState: 'ui-state-default',
 		nextMenuLink: 'ui-icon-triangle-1-e', // class to style the link (specifically, a span within the link) used in the multi-level menu to show the next level
 		topLinkText: 'All',
-		nextCrumbLink: 'ui-icon-carat-1-e'	
+		nextCrumbLink: 'ui-icon-carat-1-e',
+        onKill: function(caller, onchooseitem){},
+        onShow: function(caller){},
+        onChooseItem: function(caller){}
 	}, options);
 	
 	var killAllMenus = function(){
@@ -76,7 +79,7 @@ function Menu(caller, options){
 		});
 	};
 	
-	this.kill = function(){
+	this.kill = function(onchooseitem){
 		caller
 			.removeClass(options.loadingState)
 			.removeClass('fg-menu-open')
@@ -90,6 +93,7 @@ function Menu(caller, options){
 		menu.menuOpen = false;
 		$(document).unbind('click', killAllMenus);
 		$(document).unbind('keydown');
+        options.onKill(caller, onchooseitem);
 	};
 	
 	this.showLoading = function(){
@@ -188,6 +192,7 @@ function Menu(caller, options){
 					break;
 			};			
 		});
+        options.onShow(caller);
 	};
 	
 	this.create = function(){	
@@ -242,10 +247,11 @@ function Menu(caller, options){
 	};
 	
 	this.chooseItem = function(item){
-		menu.kill();
+		menu.kill(true);
 		// edit this for your own custom function/callback:
 		$('#menuSelection').text($(item).text());	
-		location.href = $(item).attr('href');
+		$($(item).attr('href')).click();
+        options.onChooseItem(caller);
 	};
 };
 
